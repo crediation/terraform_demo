@@ -13,12 +13,17 @@ resource "google_project" "credation_proj" {
 resource "google_project_services" "crediation_services" {
   project = "${google_project.credation_proj.project_id}"
   services   = [
+    "bigquery-json.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
+    "containerregistry.googleapis.com",
+    "iam.googleapis.com",
+    "iamcredentials.googleapis.com",
     "logging.googleapis.com",
     "monitoring.googleapis.com",
     "oslogin.googleapis.com",
     "pubsub.googleapis.com",
+    "storage-api.googleapis.com",
     ]
 }
 
