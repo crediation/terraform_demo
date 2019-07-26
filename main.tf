@@ -6,8 +6,8 @@ variable billing_id {}
 variable org_id {}
 variable k8s_username {}
 variable k8s_password {}
-variable metabase_user {}
-variable metabase_password {}
+variable metabase_db_user {}
+variable metabase_db_password {}
 
 
 # modules
@@ -27,8 +27,24 @@ module "gke" {
 module "cloudsql" {
   source = "./cloudsql"
 
-  project_id        = "${module.gke.project_id}"
-  region            = "${var.region}"
-  metabase_user     = "${var.metabase_user}"
-  metabase_password = "${var.metabase_password}"
+  project_id           = "${module.gke.project_id}"
+  region               = "${var.region}"
+  metabase_db_user     = "${var.metabase_db_user}"
+  metabase_db_password = "${var.metabase_db_password}"
+}
+
+module "k8s" {
+  source = "./k8s"
+
+  project_id             = "${module.gke.project_id}"
+  host                   = "${module.gke.host}"
+  client_certificate     = "${module.gke.client_certificate}"
+  client_key             = "${module.gke.client_key}"
+  cluster_ca_certificate = "${module.gke.cluster_ca_certificate}"
+  cloud_sql_credentials  = "${module.gke.cloud_sql_credentials}"
+
+  db_instance           = "${module.cloudsql.database_instance}"
+  metabase_db_name      = "${module.cloudsql.metabase_db_name}"
+  metabase_db_user      = "${var.metabase_db_user}"
+  metabase_db_password  = "${var.metabase_db_password}"
 }

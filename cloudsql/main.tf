@@ -20,8 +20,8 @@ resource "google_sql_database_instance" "demo_instance" {
 resource "google_sql_user" "metabase_user" {
   project  = "${var.project_id}"
   instance = "${google_sql_database_instance.demo_instance.name}"
-  name     = "${var.metabase_user}"
-  password = "${var.metabase_password}"
+  name     = "${var.metabase_db_user}"
+  password = "${var.metabase_db_password}"
 }
 
 resource "google_sql_database" "metabase_database" {
