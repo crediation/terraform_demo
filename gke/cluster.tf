@@ -1,7 +1,7 @@
 resource "google_container_cluster" "primary" {
   project = "${google_project.credation_proj.project_id}"
   name     = "demo-cluster"
-  location = "${var.region}"
+  location = "${var.zone}"
 
   remove_default_node_pool = true
   initial_node_count = 1
@@ -19,7 +19,7 @@ resource "google_container_cluster" "primary" {
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   project = "${google_project.credation_proj.project_id}"
   name       = "demo-node-pool"
-  location   = "${var.region}"
+  location   = "${var.zone}"
   cluster    = "${google_container_cluster.primary.name}"
   node_count = 1
 

@@ -1,9 +1,9 @@
 provider "google" {
   project     = "${var.project}"
-  region      = "${var.region}"
+  zone        = "${var.zone}"
 }
 
-resource "google_project" "credation_proj" {
+resource "google_project" "credation_proj" { # TODO Give the project a better name
   name            = "${var.project}"
   project_id      = "${var.project}-id"
   org_id          = "${var.org_id}"

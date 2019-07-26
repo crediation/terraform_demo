@@ -1,5 +1,5 @@
 variable project {}
-variable region {}
+variable zone {}
 variable billing_id {}
 variable org_id {}
 variable k8s_username {}
