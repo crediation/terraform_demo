@@ -4,6 +4,8 @@ resource "kubernetes_deployment" "metabase" {
     labels = {
       app = "metabase"
     }
+    namespace = "${kubernetes_namespace.sandbox.metadata.0.name}"
+
   }
   spec {
     replicas = 1
@@ -63,9 +65,20 @@ resource "kubernetes_deployment" "metabase" {
           }
         }
         container {
-          name    = "cloudsql"
-          image   = "gcr.io/cloudsql-docker/gce-proxy:1.14"
-          command = ["\"/cloud_sql_proxy\", -instances=${var.db_instance} -credential_file=${base64decode(var.cloud_sql_credentials)} "]
+          name         = "cloudsql"
+          image        = "gcr.io/cloudsql-docker/gce-proxy:1.14"
+          command      = ["/cloud_sql_proxy", "-instances=${var.db_instance_connection_name}=tcp:5432", "-credential_file=/secrets/cloudsql/credentials.json"]
+          volume_mount {
+            name       = "cloudsql-instance-credentials"
+            mount_path = "/secrets/cloudsql"
+            read_only  = true
+          }
+        }
+        volume {
+          name = "cloudsql-instance-credentials"
+          secret {
+            secret_name = "cloudsql-instance-credentials"
+          }
         }
       }
     }
@@ -91,4 +104,14 @@ resource "kubernetes_secret" "metabase_secrets" {
   }
 
   type = "Opaque"
+}
+
+resource "kubernetes_secret" "cloudsql-instance-credentials" {
+  metadata {
+    name      = "cloudsql-instance-credentials"
+    namespace = "${kubernetes_namespace.sandbox.metadata.0.name}"
+  }
+  data = {
+    "credentials.json" = "${base64decode(var.cloudsql_credentials)}"
+  }
 }

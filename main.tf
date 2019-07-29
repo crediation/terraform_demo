@@ -41,10 +41,10 @@ module "k8s" {
   client_certificate     = "${module.gke.client_certificate}"
   client_key             = "${module.gke.client_key}"
   cluster_ca_certificate = "${module.gke.cluster_ca_certificate}"
-  cloud_sql_credentials  = "${module.gke.cloud_sql_credentials}"
+  cloudsql_credentials   = "${module.gke.cloudsql_credentials}"
 
-  db_instance           = "${module.cloudsql.database_instance}"
-  metabase_db_name      = "${module.cloudsql.metabase_db_name}"
-  metabase_db_user      = "${var.metabase_db_user}"
-  metabase_db_password  = "${var.metabase_db_password}"
+  db_instance_connection_name = "${module.cloudsql.db_instance_connection_name}"
+  metabase_db_name            = "${module.cloudsql.metabase_db_name}"
+  metabase_db_user            = "${var.metabase_db_user}"
+  metabase_db_password        = "${var.metabase_db_password}"
 }

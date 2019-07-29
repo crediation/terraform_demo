@@ -17,7 +17,7 @@ output "cluster_ca_certificate" {
   value = "${google_container_cluster.primary.master_auth.0.cluster_ca_certificate}"
   sensitive = true
 }
-output "cloud_sql_credentials" {
+output "cloudsql_credentials" {
   value     = "${google_service_account_key.cloudsql_proxy_sa_key.private_key}"
   sensitive = true
 }
