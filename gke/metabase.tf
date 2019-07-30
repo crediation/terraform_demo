@@ -5,7 +5,6 @@ resource "kubernetes_deployment" "metabase" {
       app = "metabase"
     }
     namespace = "${kubernetes_namespace.sandbox.metadata.0.name}"
-
   }
   spec {
     replicas = 1
@@ -85,8 +84,31 @@ resource "kubernetes_deployment" "metabase" {
   }
 }
 
-# resource "kubernetes_service" "metabase" {
-# }
+resource "kubernetes_service" "metabase" {
+  metadata {
+    labels = {
+      app = "metabase"
+    }
+
+    name      = "metabase"
+    namespace = "${kubernetes_namespace.sandbox.metadata.0.name}"
+  }
+
+  spec {
+    external_traffic_policy = "Cluster"
+
+    port {
+      port        = "3000"
+      protocol    = "TCP"
+      target_port = "3000"
+    }
+    selector = {
+      app = "metabase"
+    }
+
+    type = "NodePort"
+  }
+}
 
 # resource "kubernetes_ingress" "metabase_ingress" {
 
@@ -112,6 +134,6 @@ resource "kubernetes_secret" "cloudsql-instance-credentials" {
     namespace = "${kubernetes_namespace.sandbox.metadata.0.name}"
   }
   data = {
-    "credentials.json" = "${base64decode(var.cloudsql_credentials)}"
+    "credentials.json" = "${base64decode(google_service_account_key.cloudsql_proxy_sa_key.private_key)}"
   }
 }

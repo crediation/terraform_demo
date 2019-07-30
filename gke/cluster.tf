@@ -39,3 +39,28 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     ]
   }
 }
+
+provider "kubernetes" {
+  host = "${google_container_cluster.primary.endpoint}"
+
+  client_certificate     = "${base64decode(google_container_cluster.primary.master_auth.0.client_certificate)}"
+  client_key             = "${base64decode(google_container_cluster.primary.master_auth.0.client_key)}"
+  cluster_ca_certificate = "${base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)}"
+}
+
+# Creating namespaces here due to the fact that depends_on cannot be used accross modules. 
+# See https://github.com/hashicorp/terraform/issues/10462 for more details
+
+resource "kubernetes_namespace" "ingress_nginx" {
+  depends_on = ["google_container_node_pool.primary_preemptible_nodes"]
+  metadata {
+    name = "ingress-nginx"
+  }
+}
+
+resource "kubernetes_namespace" "sandbox" {
+  depends_on = ["google_container_node_pool.primary_preemptible_nodes"]
+  metadata {
+    name = "sandbox"
+  }
+}

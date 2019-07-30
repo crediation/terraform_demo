@@ -34,10 +34,11 @@ resource "google_service_account" "cloudsql_proxy_sa" {
   display_name = "cloud_sql proxy service account"
 }
 
-resource "google_service_account_iam_member" "cloudsql_proxy_sa_iam" {
-  service_account_id = "${google_service_account.cloudsql_proxy_sa.name}"
-  role               = "roles/cloudsql.client"
-  member             = "serviceAccount:${google_service_account.cloudsql_proxy_sa.email}"
+# google_service_account_iam_member cannot be used here. See https://github.com/terraform-providers/terraform-provider-google/issues/1225
+resource "google_project_iam_member" "cloudsql_proxy_sa_iam" {
+  project = "${google_project.credation_proj.project_id}"
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${google_service_account.cloudsql_proxy_sa.email}"
 }
 
 resource "google_service_account_key" "cloudsql_proxy_sa_key" {

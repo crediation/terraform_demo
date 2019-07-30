@@ -4,3 +4,7 @@ variable billing_id {}
 variable org_id {}
 variable k8s_username {}
 variable k8s_password {}
+variable db_instance_connection_name {}
+variable metabase_db_name {}
+variable metabase_db_user {}
+variable metabase_db_password {}

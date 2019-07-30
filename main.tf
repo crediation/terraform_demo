@@ -22,6 +22,11 @@ module "gke" {
 
   k8s_username = "${var.k8s_username}"
   k8s_password = "${var.k8s_password}"
+  
+  db_instance_connection_name = "${module.cloudsql.db_instance_connection_name}"
+  metabase_db_name            = "${module.cloudsql.metabase_db_name}"
+  metabase_db_user            = "${var.metabase_db_user}"
+  metabase_db_password        = "${var.metabase_db_password}"
 }
 
 module "cloudsql" {
@@ -29,22 +34,7 @@ module "cloudsql" {
 
   project_id           = "${module.gke.project_id}"
   region               = "${var.region}"
-  metabase_db_user     = "${var.metabase_db_user}"
-  metabase_db_password = "${var.metabase_db_password}"
-}
-
-module "k8s" {
-  source = "./k8s"
-
-  project_id             = "${module.gke.project_id}"
-  host                   = "${module.gke.host}"
-  client_certificate     = "${module.gke.client_certificate}"
-  client_key             = "${module.gke.client_key}"
-  cluster_ca_certificate = "${module.gke.cluster_ca_certificate}"
-  cloudsql_credentials   = "${module.gke.cloudsql_credentials}"
-
-  db_instance_connection_name = "${module.cloudsql.db_instance_connection_name}"
-  metabase_db_name            = "${module.cloudsql.metabase_db_name}"
+  
   metabase_db_user            = "${var.metabase_db_user}"
   metabase_db_password        = "${var.metabase_db_password}"
 }
