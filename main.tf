@@ -32,9 +32,9 @@ module "gke" {
 module "cloudsql" {
   source = "./cloudsql"
 
-  project_id           = "${module.gke.project_id}"
-  region               = "${var.region}"
+  project_id = "${module.gke.project_id}"
+  region     = "${var.region}"
   
-  metabase_db_user            = "${var.metabase_db_user}"
-  metabase_db_password        = "${var.metabase_db_password}"
+  metabase_db_user     = "${var.metabase_db_user}"
+  metabase_db_password = "${var.metabase_db_password}"
 }

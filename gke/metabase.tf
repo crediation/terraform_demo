@@ -25,14 +25,14 @@ resource "kubernetes_deployment" "metabase" {
           image = "metabase/metabase"
           port {
             container_port = 3000
-            name          = "metabase"
+            name           = "metabase"
           }
           env {
             name = "MB_DB_USER"
             value_from {
               secret_key_ref {
-                name  = "${kubernetes_secret.metabase_secrets.metadata.0.name}"
-                key = "metabase_db_user"
+                name = "${kubernetes_secret.metabase_secrets.metadata.0.name}"
+                key  = "metabase_db_user"
               }
             }
           }
@@ -41,8 +41,8 @@ resource "kubernetes_deployment" "metabase" {
             name = "MB_DB_PASS"
             value_from {
               secret_key_ref {
-                name  = "${kubernetes_secret.metabase_secrets.metadata.0.name}"
-                key = "metabase_db_password"
+                name = "${kubernetes_secret.metabase_secrets.metadata.0.name}"
+                key  = "metabase_db_password"
               }
             }
           }
@@ -64,9 +64,9 @@ resource "kubernetes_deployment" "metabase" {
           }
         }
         container {
-          name         = "cloudsql"
-          image        = "gcr.io/cloudsql-docker/gce-proxy:1.14"
-          command      = ["/cloud_sql_proxy", "-instances=${var.db_instance_connection_name}=tcp:5432", "-credential_file=/secrets/cloudsql/credentials.json"]
+          name    = "cloudsql"
+          image   = "gcr.io/cloudsql-docker/gce-proxy:1.14"
+          command = ["/cloud_sql_proxy", "-instances=${var.db_instance_connection_name}=tcp:5432", "-credential_file=/secrets/cloudsql/credentials.json"]
           volume_mount {
             name       = "cloudsql-instance-credentials"
             mount_path = "/secrets/cloudsql"
@@ -110,13 +110,34 @@ resource "kubernetes_service" "metabase" {
   }
 }
 
-# resource "kubernetes_ingress" "metabase_ingress" {
+resource "kubernetes_ingress" "metabase_ingress" {
+  metadata {
+    name      = "metabase-ingress"
+    namespace = "${kubernetes_namespace.sandbox.metadata.0.name}"
+    annotations = {
+      "kubernetes.io/ingress.class" = "nginx"
+    }
+  }
+  spec {
+    rule {
+      host = "metabase.crediation.io"
+      http {
+        path {
+          path = "/"
+          backend {
+            service_name = "metabase"
+            service_port = 3000
+          }
+        }
+      }
 
-# }
+    }
+  }
+}
 
 resource "kubernetes_secret" "metabase_secrets" {
   metadata {
-    name = "metabase-secrets"
+    name      = "metabase-secrets"
     namespace = "${kubernetes_namespace.sandbox.metadata.0.name}"
   }
 
