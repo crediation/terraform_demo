@@ -55,6 +55,10 @@ resource "kubernetes_namespace" "ingress_nginx" {
   depends_on = ["google_container_node_pool.primary_preemptible_nodes"]
   metadata {
     name = "ingress-nginx"
+    labels = {
+      "app.kubernetes.io/name"    = "ingress-nginx"
+      "app.kubernetes.io/part-of" = "ingress-nginx"
+    }
   }
 }
 
