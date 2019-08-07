@@ -1,47 +1,56 @@
-provider "google" {
-  project     = "${var.project}"
-  zone        = "${var.zone}"
+resource "google_container_cluster" "primary" {
+  project = "${var.project_id}"
+  name     = "demo-cluster"
+  location = "${var.zone}"
+
+  remove_default_node_pool = true
+  initial_node_count = 1
+
+  master_auth {
+    username = "${var.k8s_username}"
+    password = "${var.k8s_password}"
+
+    client_certificate_config {
+      issue_client_certificate = false
+    }
+  }
 }
 
-resource "google_project" "demo_project" { # TODO Give the project a better name
-  name            = "${var.project}"
-  project_id      = "${var.project}-id"
-  org_id          = "${var.org_id}"
-  billing_account = "${var.billing_id}"
-}
+resource "google_container_node_pool" "primary_preemptible_nodes" {
+  project = "${var.project_id}"
+  name       = "demo-node-pool"
+  location   = "${var.zone}"
+  cluster    = "${google_container_cluster.primary.name}"
+  node_count = 1
 
-resource "google_project_services" "demo_services" {
-  project = "${google_project.demo_project.project_id}"
-  services   = [
-    "bigquery-json.googleapis.com",
-    "compute.googleapis.com",
-    "container.googleapis.com",
-    "containerregistry.googleapis.com",
-    "iam.googleapis.com",
-    "iamcredentials.googleapis.com",
-    "logging.googleapis.com",
-    "monitoring.googleapis.com",
-    "oslogin.googleapis.com",
-    "pubsub.googleapis.com",
-    "storage-api.googleapis.com",
-    "sqladmin.googleapis.com",
+  node_config {
+    preemptible  = true
+    machine_type = "n1-standard-1"
+
+    metadata = {
+      disable-legacy-endpoints = "true"
+    }
+
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/compute",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
     ]
+  }
 }
 
-resource "google_service_account" "cloudsql_proxy_sa" {
-  project = "${google_project.demo_project.project_id}"
-  account_id   = "cloudsql-proxy-sa"
-  display_name = "cloud_sql proxy service account"
+provider "kubernetes" {
+  host = "${google_container_cluster.primary.endpoint}"
+
+  client_certificate     = "${base64decode(google_container_cluster.primary.master_auth.0.client_certificate)}"
+  client_key             = "${base64decode(google_container_cluster.primary.master_auth.0.client_key)}"
+  cluster_ca_certificate = "${base64decode(google_container_cluster.primary.master_auth.0.cluster_ca_certificate)}"
 }
 
-# google_service_account_iam_member cannot be used here. See https://github.com/terraform-providers/terraform-provider-google/issues/1225
-resource "google_project_iam_member" "cloudsql_proxy_sa_iam" {
-  project = "${google_project.demo_project.project_id}"
-  role    = "roles/cloudsql.client"
-  member  = "serviceAccount:${google_service_account.cloudsql_proxy_sa.email}"
-}
-
-resource "google_service_account_key" "cloudsql_proxy_sa_key" {
-  service_account_id = "${google_service_account.cloudsql_proxy_sa.name}"
-  public_key_type = "TYPE_X509_PEM_FILE"
+resource "kubernetes_namespace" "sandbox" {
+  depends_on = ["google_container_node_pool.primary_preemptible_nodes"]
+  metadata {
+    name = "sandbox"
+  }
 }

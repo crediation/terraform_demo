@@ -1,7 +1,6 @@
-variable project {}
+variable project_id {}
+variable cloudsql_proxy_sa_key {}
 variable zone {}
-variable billing_id {}
-variable org_id {}
 variable k8s_username {}
 variable k8s_password {}
 variable db_instance_connection_name {}

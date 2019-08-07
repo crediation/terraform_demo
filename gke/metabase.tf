@@ -154,6 +154,6 @@ resource "kubernetes_secret" "cloudsql-instance-credentials" {
     namespace = "${kubernetes_namespace.sandbox.metadata.0.name}"
   }
   data = {
-    "credentials.json" = "${base64decode(google_service_account_key.cloudsql_proxy_sa_key.private_key)}"
+    "credentials.json" = "${base64decode(var.cloudsql_proxy_sa_key)}"
   }
 }
