@@ -1,5 +1,5 @@
 output "project_id" {
-  value = "${google_project.credation_proj.project_id}"
+  value = "${google_project.demo_project.project_id}"
 }
 
 output "loadbalancer_ip_address" {

@@ -1,5 +1,5 @@
 resource "google_container_cluster" "primary" {
-  project = "${google_project.credation_proj.project_id}"
+  project = "${google_project.demo_project.project_id}"
   name     = "demo-cluster"
   location = "${var.zone}"
 
@@ -17,7 +17,7 @@ resource "google_container_cluster" "primary" {
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
-  project = "${google_project.credation_proj.project_id}"
+  project = "${google_project.demo_project.project_id}"
   name       = "demo-node-pool"
   location   = "${var.zone}"
   cluster    = "${google_container_cluster.primary.name}"
